@@ -60,6 +60,14 @@ const PIECE_DIRECTIONS: Record<PieceType['type'], DirectionGrid> = {
   ],
 };
 
+const PIECE_BG: Record<PieceType['type'], string> = {
+  lion: 'bg-pink-100',      // ライオン: 薄いピンク
+  chick: 'bg-lime-100',     // ヒヨコ: 薄い黄緑
+  giraffe: 'bg-violet-200', // キリン: 紫
+  elephant: 'bg-purple-100',// ゾウ: 薄い紫
+  chicken: 'bg-yellow-100', // ニワトリ: 薄い黄色（未指定の補完）
+};
+
 export default function Piece({ piece, isSelected = false }: PieceProps) {
   const isAI = piece.player === 'ai';
   const directions = PIECE_DIRECTIONS[piece.type];
@@ -85,8 +93,8 @@ export default function Piece({ piece, isSelected = false }: PieceProps) {
                   key={`${rowIndex}-${colIndex}`}
                   className="flex items-center justify-center"
                 >
-                  <div className="text-3xl sm:text-6xl select-none drop-shadow-md">
-                    {PIECE_EMOJI[piece.type]}
+                  <div className={`${PIECE_BG[piece.type]} rounded-lg p-1 sm:p-2 flex items-center justify-center`}>
+                    <div className="text-3xl sm:text-6xl select-none drop-shadow-md">{PIECE_EMOJI[piece.type]}</div>
                   </div>
                 </div>
               );
