@@ -44,8 +44,8 @@ export default function CapturedPieces({
   return (
     <div
       className={`
-        bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 rounded-2xl shadow-lg p-5 border-3 border-amber-200
-        min-w-[400px]
+        bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 rounded-2xl shadow-lg p-4 sm:p-5 border-3 border-amber-200
+        min-w-[200px] sm:min-w-[400px]
         ${isAI ? 'rotate-180' : ''}
       `}
     >
@@ -62,7 +62,7 @@ export default function CapturedPieces({
               onClick={() => onSelectPiece(pieceType as PieceType)}
               disabled={!isCurrentPlayer}
               className={`
-                flex items-center gap-2 px-4 py-3 rounded-xl
+                flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-3 rounded-xl
                 transition-all duration-200
                 border-2
                 ${
@@ -79,7 +79,7 @@ export default function CapturedPieces({
               `}
               title={PIECE_NAME[pieceType as PieceType]}
             >
-              <span className="text-3xl drop-shadow">{PIECE_EMOJI[pieceType as PieceType]}</span>
+              <span className="text-2xl sm:text-3xl drop-shadow">{PIECE_EMOJI[pieceType as PieceType]}</span>
               <span className="text-base font-bold text-amber-900">×{count}</span>
             </button>
           ))

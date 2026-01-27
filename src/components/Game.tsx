@@ -150,7 +150,7 @@ export default function Game() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-50 via-orange-50 to-pink-50 p-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-50 via-orange-50 to-pink-50 p-4 sm:p-8">
       {/* 勝利時の紙吹雪 */}
       <Confetti active={gameState.winner === 'player'} />
 
@@ -160,7 +160,7 @@ export default function Game() {
       )}
 
       <div className="flex flex-col items-center gap-8">
-        <h1 className="text-5xl font-bold text-amber-900 drop-shadow-md">
+        <h1 className="text-3xl sm:text-5xl font-bold text-amber-900 drop-shadow-md">
           🦁 どうぶつしょうぎ 🐘
         </h1>
 
@@ -225,7 +225,7 @@ export default function Game() {
 
         {/* ゲーム情報 */}
         {!gameState.winner && (
-          <div className="bg-gradient-to-br from-white via-yellow-50 to-orange-50 rounded-2xl shadow-lg p-6 min-w-[400px] text-center border-2 border-amber-200">
+          <div className="bg-gradient-to-br from-white via-yellow-50 to-orange-50 rounded-2xl shadow-lg p-4 sm:p-6 min-w-[200px] sm:min-w-[400px] text-center border-2 border-amber-200">
             {isAIThinking ? (
               <div className="text-xl text-amber-700 font-semibold animate-pulse">
                 🤔 AIが考え中...

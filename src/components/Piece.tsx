@@ -85,7 +85,7 @@ export default function Piece({ piece, isSelected = false }: PieceProps) {
                   key={`${rowIndex}-${colIndex}`}
                   className="flex items-center justify-center"
                 >
-                  <div className="text-6xl select-none drop-shadow-md">
+                  <div className="text-3xl sm:text-6xl select-none drop-shadow-md">
                     {PIECE_EMOJI[piece.type]}
                   </div>
                 </div>
@@ -99,7 +99,7 @@ export default function Piece({ piece, isSelected = false }: PieceProps) {
                   key={`${rowIndex}-${colIndex}`}
                   className="flex items-center justify-center"
                 >
-                  <div className="w-3 h-3 bg-red-500 rounded-full drop-shadow"></div>
+                  <div className="w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full drop-shadow"></div>
                 </div>
               );
             }
