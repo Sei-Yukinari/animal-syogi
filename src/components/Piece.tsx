@@ -98,13 +98,8 @@ export default function Piece({ piece, isSelected = false }: PieceProps) {
                   key={`${rowIndex}-${colIndex}`}
                   className="flex items-center justify-center"
                 >
-                  <div className={`${PIECE_BG[piece.type]} rounded-lg ${piece.type === 'lion' ? 'p-0' : 'p-1 sm:p-2'} flex items-center justify-center`}>
-                    {PIECE_IMAGE[piece.type] ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={PIECE_IMAGE[piece.type]} alt={PIECE_NAME[piece.type]} className="w-10 h-10 sm:w-20 sm:h-20 object-contain p-0 rounded-none" />
-                    ) : (
-                      <div className="text-3xl sm:text-6xl select-none drop-shadow-md">{PIECE_EMOJI[piece.type]}</div>
-                    )}
+                  <div className={`${PIECE_BG[piece.type]} rounded-lg p-1 sm:p-2 flex items-center justify-center`}>
+                    <div className="text-3xl sm:text-6xl select-none drop-shadow-md">{PIECE_EMOJI[piece.type]}</div>
                   </div>
                 </div>
               );
