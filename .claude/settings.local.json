@@ -5,7 +5,9 @@
       "Bash(git init:*)",
       "Bash(npm install)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(npm run dev:*)",
+      "WebFetch(domain:www.shogi.or.jp)"
     ]
   }
 }
