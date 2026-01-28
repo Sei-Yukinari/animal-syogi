@@ -1,7 +1,8 @@
 import { GameState, Move, PieceType, Player } from '@/types/game';
 import {
   applyMove,
-
+  shouldPromoteChick,
+  shouldAllowPromotion,
   cloneGameState,
   generateAllMoves,
 } from './gameLogic';
@@ -175,7 +176,13 @@ export function getBestMove(
 
   for (const move of moves) {
     const newState = cloneGameState(state);
-    const nextState = applyMove(newState, move);
+    // 成り判定: AIは自動で成る
+    let promote = false;
+    if ((move.piece.type === 'chick' && shouldPromoteChick(move.piece, move.to, newState.board, newState.board.length === 6 ? 'goro' : 'standard')) ||
+        (move.piece.type === 'cat' && shouldAllowPromotion(move.piece, move.to, newState.board, newState.board.length === 6 ? 'goro' : 'standard'))) {
+      promote = true;
+    }
+    const nextState = applyMove(newState, move, newState.board.length === 6 ? 'goro' : 'standard', promote);
 
     // ミニマックス法で評価
     const score = minimax(

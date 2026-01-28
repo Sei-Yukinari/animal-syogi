@@ -5,6 +5,8 @@ import {
   createInitialGameState,
   getValidDropPositions,
   getValidMovesForPiece,
+  shouldPromoteChick,
+  shouldAllowPromotion,
 } from '@/utils/gameLogic';
 import { getBestMove } from '@/utils/ai';
 import { isSamePosition } from '@/utils/pieceRules';
@@ -94,30 +96,10 @@ export function useGameLogic(mode: 'standard' | 'goro' = 'standard') {
           // 成りが任意の場合は promotionPending を設定して UI に任せる
           const pieceForCheck = selectedPiece; 
           if (pieceForCheck && (pieceForCheck.type === 'chick' || pieceForCheck.type === 'cat')) {
-            // 同期判定を行う
-            const willAllow = (() => {
-              const p = pieceForCheck;
-              if (p.type === 'chick') {
-                if (mode === 'goro') {
-                  if (p.player === 'player') return position.row === 0 || position.row === 1;
-                  return position.row === gameState.board.length - 1 || position.row === gameState.board.length - 2;
-                }
-                if (p.player === 'player') return position.row === 0;
-                return position.row === gameState.board.length - 1;
-              }
-              if (p.type === 'cat') {
-                if (mode === 'goro') {
-                  if (p.player === 'player') return position.row === 0 || position.row === 1;
-                  return position.row === gameState.board.length - 1 || position.row === gameState.board.length - 2;
-                }
-                if (p.player === 'player') return position.row === 0;
-                return position.row === gameState.board.length - 1;
-              }
-              return false;
-            })();
-
-            if (willAllow) {
-              // UI による選択で成否を決定するため、hook に resolver を渡す
+            // 成れる場合はモーダルで選択
+            const canPromote = (pieceForCheck.type === 'chick' && shouldPromoteChick(pieceForCheck, position, gameState.board, mode)) ||
+                              (pieceForCheck.type === 'cat' && shouldAllowPromotion(pieceForCheck, position, gameState.board, mode));
+            if (canPromote) {
               setPromotionPending({
                 piece: pieceForCheck,
                 move,
@@ -126,7 +108,7 @@ export function useGameLogic(mode: 'standard' | 'goro' = 'standard') {
                   setGameState(newState);
                 },
               });
-              return; // 処理はモーダルの解決で続行される
+              // ここでreturnしない: 移動自体は即時反映し、成り選択はUIで後追い
             }
           }
 
