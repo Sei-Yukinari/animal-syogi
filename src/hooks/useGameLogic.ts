@@ -9,8 +9,8 @@ import {
 import { getBestMove } from '@/utils/ai';
 import { isSamePosition } from '@/utils/pieceRules';
 
-export function useGameLogic() {
-  const [gameState, setGameState] = useState<GameState>(() => createInitialGameState(false));
+export function useGameLogic(mode: 'standard' | 'goro' = 'standard') {
+  const [gameState, setGameState] = useState<GameState>(() => createInitialGameState(false, mode));
   const [isAIThinking, setIsAIThinking] = useState(false);
   const [showCoin, setShowCoin] = useState(false);
   const [pendingFirst, setPendingFirst] = useState<Player | null>(null);
@@ -19,13 +19,13 @@ export function useGameLogic() {
   useEffect(() => {
     if (pendingFirst) {
       // create initial state without randomness for now
-      setGameState(createInitialGameState(false));
+      setGameState(createInitialGameState(false, mode));
       setTimeout(() => {
-        setGameState({ ...createInitialGameState(false), currentPlayer: pendingFirst });
+        setGameState({ ...createInitialGameState(false, mode), currentPlayer: pendingFirst });
         setPendingFirst(null);
       }, 500);
     }
-  }, [pendingFirst]);
+  }, [pendingFirst, mode]);
 
   // AI の手番
   useEffect(() => {

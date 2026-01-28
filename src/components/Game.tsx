@@ -23,7 +23,7 @@ export default function Game() {
     handleSquareClick,
     handleCapturedPieceClick,
     handleReset,
-  } = useGameLogic();
+  } = useGameLogic(mode);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-50 via-orange-50 to-pink-50 p-4 sm:p-8">

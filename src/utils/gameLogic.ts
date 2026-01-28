@@ -20,33 +20,50 @@ import {
  * Row 2 (先手): 空/ヒヨコ/空
  * Row 3 (先手): キリン/ライオン/ゾウ
  */
-export function createInitialBoard(): Board {
+export function createInitialBoard(mode: 'standard' | 'goro' = 'standard'): Board {
+  if (mode === 'standard') {
+    const board: Board = [
+      [
+        { type: 'elephant', player: 'ai' },
+        { type: 'lion', player: 'ai' },
+        { type: 'giraffe', player: 'ai' },
+      ],
+      [null, { type: 'chick', player: 'ai' }, null],
+      [null, { type: 'chick', player: 'player' }, null],
+      [
+        { type: 'giraffe', player: 'player' },
+        { type: 'lion', player: 'player' },
+        { type: 'elephant', player: 'player' },
+      ],
+    ];
+    return board;
+  }
+
+  // goro mode: 5 cols x 6 rows (rows 0..5)
   const board: Board = [
-    [
-      { type: 'elephant', player: 'ai' },
-      { type: 'lion', player: 'ai' },
-      { type: 'giraffe', player: 'ai' },
-    ],
-    [null, { type: 'chick', player: 'ai' }, null],
-    [null, { type: 'chick', player: 'player' }, null],
-    [
-      { type: 'giraffe', player: 'player' },
-      { type: 'lion', player: 'player' },
-      { type: 'elephant', player: 'player' },
-    ],
+    [null, { type: 'dog', player: 'ai' }, { type: 'lion', player: 'ai' }, { type: 'dog', player: 'ai' }, null], // y=0
+    [null, { type: 'cat', player: 'ai' }, null, { type: 'cat', player: 'ai' }, null], // y=1
+    [null, { type: 'chick', player: 'ai' }, { type: 'chick', player: 'ai' }, { type: 'chick', player: 'ai' }, null], // y=2
+    [null, { type: 'chick', player: 'player' }, { type: 'chick', player: 'player' }, { type: 'chick', player: 'player' }, null], // y=3
+    [null, { type: 'cat', player: 'player' }, null, { type: 'cat', player: 'player' }, null], // y=4
+    [null, { type: 'dog', player: 'player' }, { type: 'lion', player: 'player' }, { type: 'dog', player: 'player' }, null], // y=5
   ];
+
   return board;
 }
 
 /**
  * 初期ゲーム状態を作成
  */
-export function createInitialGameState(randomFirst: boolean = false): GameState {
+export function createInitialGameState(
+  randomFirst: boolean = false,
+  mode: 'standard' | 'goro' = 'standard'
+): GameState {
   const first: Player = randomFirst
     ? (Math.random() < 0.5 ? 'player' : 'ai')
     : 'player';
   return {
-    board: createInitialBoard(),
+    board: createInitialBoard(mode),
     capturedPieces: { player: [], ai: [] },
     currentPlayer: first,
     winner: null,
@@ -80,7 +97,7 @@ export function getValidMovesForPiece(
     };
 
     // 盤面外なら無効
-    if (!isValidPosition(to)) continue;
+    if (!isValidPosition(to, board)) continue;
 
     const targetPiece = board[to.row][to.col];
 
@@ -101,8 +118,8 @@ export function getValidMovesForPiece(
 export function getValidDropPositions(board: Board): Position[] {
   const validPositions: Position[] = [];
 
-  for (let row = 0; row < 4; row++) {
-    for (let col = 0; col < 3; col++) {
+  for (let row = 0; row < board.length; row++) {
+    for (let col = 0; col < (board[0] ? board[0].length : 0); col++) {
       if (board[row][col] === null) {
         validPositions.push({ row, col });
       }
@@ -221,8 +238,8 @@ export function checkWinner(board: Board): Player | null {
   let aiLionExists = false;
 
   // ライオンの存在を確認
-  for (let row = 0; row < 4; row++) {
-    for (let col = 0; col < 3; col++) {
+  for (let row = 0; row < board.length; row++) {
+    for (let col = 0; col < (board[0] ? board[0].length : 0); col++) {
       const piece = board[row][col];
       if (piece && piece.type === 'lion') {
         if (piece.player === 'player') {
@@ -251,9 +268,9 @@ export function checkLionInEnemyTerritory(
   board: Board,
   player: Player
 ): boolean {
-  const targetRow = player === 'player' ? 0 : 3;
+  const targetRow = player === 'player' ? 0 : board.length - 1;
 
-  for (let col = 0; col < 3; col++) {
+  for (let col = 0; col < (board[0] ? board[0].length : 0); col++) {
     const piece = board[targetRow][col];
     if (piece && piece.type === 'lion' && piece.player === player) {
       return true;
@@ -273,8 +290,8 @@ export function generateAllMoves(state: GameState, player: Player): Move[] {
   const moves: Move[] = [];
 
   // 盤上の駒の移動
-  for (let row = 0; row < 4; row++) {
-    for (let col = 0; col < 3; col++) {
+  for (let row = 0; row < state.board.length; row++) {
+    for (let col = 0; col < (state.board[0] ? state.board[0].length : 0); col++) {
       const piece = state.board[row][col];
       if (piece && piece.player === player) {
         const from: Position = { row, col };
