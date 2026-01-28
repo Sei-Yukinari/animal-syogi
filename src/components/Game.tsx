@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { GameState, PieceType, Position } from '@/types/game';
+import { GameState, PieceType, Position, Player } from '@/types/game';
+import CoinFlip from './CoinFlip';
 import {
   applyMove,
   createInitialGameState,
@@ -16,19 +17,31 @@ import Confetti from './Confetti';
 import VictoryModal from './VictoryModal';
 
 export default function Game() {
-  const [gameState, setGameState] = useState<GameState>(createInitialGameState());
+  const [gameState, setGameState] = useState<GameState>(() => createInitialGameState(false));
   const [isAIThinking, setIsAIThinking] = useState(false);
+  const [showCoin, setShowCoin] = useState(true);
+  const [pendingFirst, setPendingFirst] = useState<Player | null>(null);
+
+  // コイントス結果反映
+  useEffect(() => {
+    if (pendingFirst) {
+      setGameState(createInitialGameState(false));
+      setTimeout(() => {
+        setGameState((prev) => ({ ...createInitialGameState(false), currentPlayer: pendingFirst }));
+        setPendingFirst(null);
+      }, 500);
+    }
+  }, [pendingFirst]);
 
   // AI の手番
   useEffect(() => {
     if (
       gameState.currentPlayer === 'ai' &&
       !gameState.winner &&
-      !isAIThinking
+      !isAIThinking &&
+      !showCoin
     ) {
       setIsAIThinking(true);
-
-      // 少し遅延を入れて自然な感じに
       setTimeout(() => {
         const bestMove = getBestMove(gameState, 3);
         if (bestMove) {
@@ -38,7 +51,7 @@ export default function Game() {
         setIsAIThinking(false);
       }, 500);
     }
-  }, [gameState, isAIThinking]);
+  }, [gameState, isAIThinking, showCoin]);
 
   // マスがクリックされたとき
   const handleSquareClick = (position: Position) => {
@@ -145,12 +158,18 @@ export default function Game() {
 
   // ゲームをリセット
   const handleReset = () => {
-    setGameState(createInitialGameState());
+    setShowCoin(true);
     setIsAIThinking(false);
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-50 via-orange-50 to-pink-50 p-4 sm:p-8">
+      {showCoin && (
+        <CoinFlip onResult={(result) => {
+          setPendingFirst(result);
+          setTimeout(() => setShowCoin(false), 100);
+        }} />
+      )}
       {/* 勝利時の紙吹雪 */}
       <Confetti active={gameState.winner === 'player'} />
 

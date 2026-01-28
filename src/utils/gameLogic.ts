@@ -43,11 +43,14 @@ export function createInitialBoard(): Board {
 /**
  * 初期ゲーム状態を作成
  */
-export function createInitialGameState(): GameState {
+export function createInitialGameState(randomFirst: boolean = false): GameState {
+  const first: Player = randomFirst
+    ? (Math.random() < 0.5 ? 'player' : 'ai')
+    : 'player';
   return {
     board: createInitialBoard(),
     capturedPieces: { player: [], ai: [] },
-    currentPlayer: 'player',
+    currentPlayer: first,
     winner: null,
     selectedPosition: null,
     selectedCapturedPiece: null,
