@@ -149,6 +149,7 @@ export function useGameLogic(): UseGameLogicApi {
   // Expose gameState as a getter property to always reflect latest state when captured by tests
   const api: UseGameLogicApi = {
     getState,
+    get gameState() { return getState(); },
     setGameState,
     isAIThinking,
     showCoin,
@@ -159,9 +160,6 @@ export function useGameLogic(): UseGameLogicApi {
     handleCapturedPieceClick: (pt: PieceType) => handleCapturedPieceClick(pt),
     handleReset: () => handleReset(),
   };
-  Object.defineProperty(api, 'gameState', {
-    get: () => getState(),
-  });
 
   return api;
 }
