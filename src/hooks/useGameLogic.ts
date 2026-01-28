@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { GameState, PieceType, Position, Player } from '@/types/game';
 import {
   applyMove,
@@ -12,9 +12,13 @@ import { isSamePosition } from '@/utils/pieceRules';
 
 export function useGameLogic() {
   const [gameState, setGameState] = useState<GameState>(() => createInitialGameState(false));
+  const gameStateRef = useRef(gameState);
   const [isAIThinking, setIsAIThinking] = useState(false);
   const [showCoin, setShowCoin] = useState(true);
   const [pendingFirst, setPendingFirst] = useState<Player | null>(null);
+
+  // keep ref in sync
+  useEffect(() => { gameStateRef.current = gameState; }, [gameState]);
 
   // コイントス結果反映
   useEffect(() => {
@@ -49,82 +53,83 @@ export function useGameLogic() {
 
   // マスがクリックされたとき
   const handleSquareClick = (position: Position) => {
-    if (gameState.winner || gameState.currentPlayer === 'ai') return;
-    if (gameState.selectedCapturedPiece) {
-      const isValidDrop = gameState.validMoves.some((move) => isSamePosition(move, position));
-      if (isValidDrop) {
-        const move = {
-          from: null,
-          to: position,
-          piece: {
-            type: gameState.selectedCapturedPiece.pieceType,
-            player: gameState.selectedCapturedPiece.player,
-          },
-        };
-        const newState = applyMove(gameState, move);
-        setGameState(newState);
-      } else {
-        setGameState({
-          ...gameState,
+    setGameState((prev) => {
+      if (prev.winner || prev.currentPlayer === 'ai') return prev;
+      if (prev.selectedCapturedPiece) {
+        const isValidDrop = prev.validMoves.some((move) => isSamePosition(move, position));
+        if (isValidDrop) {
+          const move = {
+            from: null,
+            to: position,
+            piece: {
+              type: prev.selectedCapturedPiece.pieceType,
+              player: prev.selectedCapturedPiece.player,
+            },
+          };
+          return applyMove(prev, move);
+        }
+        return {
+          ...prev,
           selectedCapturedPiece: null,
           validMoves: [],
-        });
+        };
       }
-      return;
-    }
-    if (gameState.selectedPosition) {
-      const isValidMove = gameState.validMoves.some((move) => isSamePosition(move, position));
-      if (isValidMove) {
-        const piece = gameState.board[gameState.selectedPosition.row][gameState.selectedPosition.col];
-        if (piece) {
-          const move = {
-            from: gameState.selectedPosition,
-            to: position,
-            piece,
-          };
-          const newState = applyMove(gameState, move);
-          setGameState(newState);
-        }
-      } else {
-        const clickedPiece = gameState.board[position.row][position.col];
-        if (clickedPiece && clickedPiece.player === 'player') {
-          const validMoves = getValidMovesForPiece(gameState.board, position);
-          setGameState({
-            ...gameState,
-            selectedPosition: position,
-            validMoves,
-          });
+      if (prev.selectedPosition) {
+        const isValidMove = prev.validMoves.some((move) => isSamePosition(move, position));
+        if (isValidMove) {
+          const piece = prev.board[prev.selectedPosition.row][prev.selectedPosition.col];
+          if (piece) {
+            const move = {
+              from: prev.selectedPosition,
+              to: position,
+              piece,
+            };
+            return applyMove(prev, move);
+          }
+          return prev;
         } else {
-          setGameState({
-            ...gameState,
+          const clickedPiece = prev.board[position.row][position.col];
+          if (clickedPiece && clickedPiece.player === 'player') {
+            const validMoves = getValidMovesForPiece(prev.board, position);
+            return {
+              ...prev,
+              selectedPosition: position,
+              validMoves,
+            };
+          }
+          return {
+            ...prev,
             selectedPosition: null,
             validMoves: [],
-          });
+          };
         }
+      } else {
+        const clickedPiece = prev.board[position.row][position.col];
+        if (clickedPiece && clickedPiece.player === 'player') {
+          const validMoves = getValidMovesForPiece(prev.board, position);
+          return {
+            ...prev,
+            selectedPosition: position,
+            selectedCapturedPiece: null,
+            validMoves,
+          };
+        }
+        return prev;
       }
-    } else {
-      const clickedPiece = gameState.board[position.row][position.col];
-      if (clickedPiece && clickedPiece.player === 'player') {
-        const validMoves = getValidMovesForPiece(gameState.board, position);
-        setGameState({
-          ...gameState,
-          selectedPosition: position,
-          selectedCapturedPiece: null,
-          validMoves,
-        });
-      }
-    }
+    });
   };
 
   // 持ち駒がクリックされたとき
   const handleCapturedPieceClick = (pieceType: PieceType) => {
-    if (gameState.currentPlayer !== 'player' || gameState.winner) return;
-    const validMoves = getValidDropPositions(gameState.board);
-    setGameState({
-      ...gameState,
-      selectedPosition: null,
-      selectedCapturedPiece: { player: 'player', pieceType },
-      validMoves,
+    setGameState((prev) => {
+      if (prev.currentPlayer !== 'player' || prev.winner) return prev;
+      const validMoves = getValidDropPositions(prev.board);
+      return {
+        ...prev,
+        selectedPosition: null,
+        selectedCapturedPiece: { player: 'player', pieceType },
+        validMoves,
+      };
     });
   };
 
@@ -132,18 +137,29 @@ export function useGameLogic() {
   const handleReset = () => {
     setShowCoin(true);
     setIsAIThinking(false);
+    setGameState(createInitialGameState(false));
   };
 
-  return {
-    gameState,
+  // Return stable functions and values so tests can capture them synchronously
+  // Expose a getter for synchronous tests to read latest state
+  const getState = () => gameStateRef.current;
+
+  // Expose gameState as a getter property to always reflect latest state when captured by tests
+  const api: any = {
+    getState,
     setGameState,
     isAIThinking,
     showCoin,
     setShowCoin,
     pendingFirst,
     setPendingFirst,
-    handleSquareClick,
-    handleCapturedPieceClick,
-    handleReset,
+    handleSquareClick: (pos: Position) => handleSquareClick(pos),
+    handleCapturedPieceClick: (pt: PieceType) => handleCapturedPieceClick(pt),
+    handleReset: () => handleReset(),
   };
+  Object.defineProperty(api, 'gameState', {
+    get: () => getState(),
+  });
+
+  return api;
 }
