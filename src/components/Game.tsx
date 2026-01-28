@@ -1,6 +1,6 @@
 'use client';
 
-import { PieceType, Position, Player } from '@/types/game';
+// import { PieceType, Position, Player } from '@/types/game';
 import CoinFlip from './CoinFlip';
 import { useGameLogic } from '@/hooks/useGameLogic';
 import Board from './Board';
@@ -11,11 +11,11 @@ import VictoryModal from './VictoryModal';
 export default function Game() {
   const {
     gameState,
-    setGameState,
+
     isAIThinking,
     showCoin,
     setShowCoin,
-    pendingFirst,
+
     setPendingFirst,
     handleSquareClick,
     handleCapturedPieceClick,
