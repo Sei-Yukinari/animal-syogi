@@ -7,13 +7,21 @@ import {
 } from './gameLogic';
 
 // 駒の価値
-const PIECE_VALUES: Record<PieceType, number> = {
+const PIECE_VALUES: Partial<Record<PieceType, number>> = {
   lion: 10000, // ライオンは最重要
   chicken: 700, // 成った駒は価値が高い
   giraffe: 600,
   elephant: 500,
   chick: 400,
+  dog: 550,
+  cat: 450,
+  hen: 700,
+  cat_p: 700,
 };
+
+function getPieceValue(type: PieceType) {
+  return PIECE_VALUES[type] ?? 100;
+}
 
 // 位置評価（中央や前線が良い）
 const POSITION_BONUS = [
@@ -39,18 +47,29 @@ function evaluatePosition(state: GameState, player: Player): number {
   let score = 0;
 
   // 盤上の駒の評価
-  for (let row = 0; row < 4; row++) {
-    for (let col = 0; col < 3; col++) {
+  const rows = state.board.length;
+  const cols = state.board[0] ? state.board[0].length : 3;
+
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
       const piece = state.board[row][col];
       if (!piece) continue;
 
-      const pieceValue = PIECE_VALUES[piece.type];
+      const pieceValue = getPieceValue(piece.type);
 
       // 位置ボーナス
-      const positionBonus =
-        piece.player === 'player'
-          ? POSITION_BONUS[row][col]
-          : POSITION_BONUS[3 - row][col];
+      const positionBonus = (() => {
+        if (rows === 4 && cols === 3) {
+          return piece.player === 'player'
+            ? POSITION_BONUS[row][col]
+            : POSITION_BONUS[3 - row][col];
+        }
+        // simple heuristic for goro (5x6): favor center columns and forward rows
+        const centerCol = Math.floor(cols / 2);
+        const colBonus = Math.max(0, 30 - Math.abs(col - centerCol) * 5);
+        const rowBonus = piece.player === 'player' ? (rows - 1 - row) * 5 : row * 5;
+        return colBonus + rowBonus;
+      })();
 
       const totalValue = pieceValue + positionBonus;
 
@@ -64,10 +83,10 @@ function evaluatePosition(state: GameState, player: Player): number {
 
   // 持ち駒の評価
   for (const pieceType of state.capturedPieces[player]) {
-    score += PIECE_VALUES[pieceType] * 0.5; // 持ち駒は少し価値を下げる
+    score += getPieceValue(pieceType) * 0.5; // 持ち駒は少し価値を下げる
   }
   for (const pieceType of state.capturedPieces[opponent]) {
-    score -= PIECE_VALUES[pieceType] * 0.5;
+    score -= getPieceValue(pieceType) * 0.5;
   }
 
   return score;

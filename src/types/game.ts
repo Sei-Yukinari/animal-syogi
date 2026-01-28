@@ -1,5 +1,14 @@
 // 駒の種類
-export type PieceType = 'lion' | 'giraffe' | 'elephant' | 'chick' | 'chicken';
+export type PieceType =
+  | 'lion'
+  | 'giraffe'
+  | 'elephant'
+  | 'chick'
+  | 'chicken'
+  | 'dog'
+  | 'cat'
+  | 'hen'
+  | 'cat_p';
 
 // プレイヤー
 export type Player = 'player' | 'ai';
