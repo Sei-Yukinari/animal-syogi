@@ -76,7 +76,8 @@ export function getPieceDirections(
 
   // 後手（AI）の場合は方向を反転
   if (player === 'ai') {
-    return directions.map(([row, col]) => [-row, -col] as Direction);
+    // colは反転しない（左右はそのまま）
+    return directions.map(([row, col]) => [-row, col] as Direction);
   }
 
   return directions;
