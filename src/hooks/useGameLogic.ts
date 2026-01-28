@@ -36,17 +36,19 @@ export function useGameLogic() {
       !showCoin
     ) {
       setIsAIThinking(true);
-      setTimeout(async () => {
-        // Web WorkerでAI計算
-        const worker = new Worker(new URL('../workers/aiWorker.ts', import.meta.url), { type: 'module' });
-        const aiApi = wrap<{ getBestMove(state: GameState, difficulty: number): Promise<import('@/types/game').Move | null> }>(worker);
-        const bestMove = await aiApi.getBestMove(gameState, 3);
-        worker.terminate();
-        if (bestMove) {
-          const newState = applyMove(gameState, bestMove);
-          setGameState(newState);
-        }
-        setIsAIThinking(false);
+      setTimeout(() => {
+        // Web WorkerでAI計算（public/aiWorker.js方式）
+        const worker = new Worker('/aiWorker.js', { type: 'module' });
+        worker.postMessage({ state: gameState, difficulty: 3 });
+        worker.onmessage = (e) => {
+          const bestMove = e.data;
+          worker.terminate();
+          if (bestMove) {
+            const newState = applyMove(gameState, bestMove);
+            setGameState(newState);
+          }
+          setIsAIThinking(false);
+        };
       }, 500);
     }
   }, [gameState, isAIThinking, showCoin]);
