@@ -27,7 +27,7 @@ export default function Game() {
     if (pendingFirst) {
       setGameState(createInitialGameState(false));
       setTimeout(() => {
-        setGameState((prev) => ({ ...createInitialGameState(false), currentPlayer: pendingFirst }));
+        setGameState({ ...createInitialGameState(false), currentPlayer: pendingFirst });
         setPendingFirst(null);
       }, 500);
     }

@@ -59,7 +59,7 @@ export default function Confetti({ active }: ConfettiProps) {
           }}
         />
       ))}
-      <style jsx>{`
+      <style>{`
         @keyframes fall {
           0% {
             transform: translateY(-10px) rotate(0deg);

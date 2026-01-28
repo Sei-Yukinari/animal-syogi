@@ -14,10 +14,11 @@ const PIECE_EMOJI: Record<PieceType['type'], string> = {
   chicken: '🐔',
 };
 
-const PIECE_IMAGE: Partial<Record<PieceType['type'], string>> = {
-  lion: '/images/pieces/lion.png',
-  // 他の駒画像は今後追加可能
-};
+// const PIECE_IMAGE: Partial<Record<PieceType['type'], string>> = {
+//   lion: '/images/pieces/lion.png',
+//   // 他の駒画像は今後追加可能
+// };
+
 
 // 駒の日本語名
 const PIECE_NAME: Record<PieceType['type'], string> = {

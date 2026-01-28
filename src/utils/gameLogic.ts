@@ -4,14 +4,12 @@ import {
   GameState,
   Move,
   Piece,
-  PieceType,
   Player,
   Position,
 } from '@/types/game';
 import {
   getPieceDirections,
   isValidPosition,
-  isSamePosition,
 } from './pieceRules';
 
 /**

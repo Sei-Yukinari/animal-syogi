@@ -1,7 +1,7 @@
 import { GameState, Move, PieceType, Player } from '@/types/game';
 import {
   applyMove,
-  checkWinner,
+
   cloneGameState,
   generateAllMoves,
 } from './gameLogic';
