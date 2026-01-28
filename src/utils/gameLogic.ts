@@ -41,12 +41,30 @@ export function createInitialBoard(mode: 'standard' | 'goro' = 'standard'): Boar
 
   // goro mode: 5 cols x 6 rows (rows 0..5)
   const board: Board = [
-    [null, { type: 'dog', player: 'ai' }, { type: 'lion', player: 'ai' }, { type: 'dog', player: 'ai' }, null], // y=0
-    [null, { type: 'cat', player: 'ai' }, null, { type: 'cat', player: 'ai' }, null], // y=1
-    [null, { type: 'chick', player: 'ai' }, { type: 'chick', player: 'ai' }, { type: 'chick', player: 'ai' }, null], // y=2
-    [null, { type: 'chick', player: 'player' }, { type: 'chick', player: 'player' }, { type: 'chick', player: 'player' }, null], // y=3
-    [null, { type: 'cat', player: 'player' }, null, { type: 'cat', player: 'player' }, null], // y=4
-    [null, { type: 'dog', player: 'player' }, { type: 'lion', player: 'player' }, { type: 'dog', player: 'player' }, null], // y=5
+    // y=0 (後手側): C D L D C
+    [
+      { type: 'cat', player: 'ai' },
+      { type: 'dog', player: 'ai' },
+      { type: 'lion', player: 'ai' },
+      { type: 'dog', player: 'ai' },
+      { type: 'cat', player: 'ai' },
+    ],
+    // y=1: empty
+    [null, null, null, null, null],
+    // y=2: H H H (後手側ひよこ)
+    [null, { type: 'chick', player: 'ai' }, { type: 'chick', player: 'ai' }, { type: 'chick', player: 'ai' }, null],
+    // y=3: H H H (先手側ひよこ)
+    [null, { type: 'chick', player: 'player' }, { type: 'chick', player: 'player' }, { type: 'chick', player: 'player' }, null],
+    // y=4: empty
+    [null, null, null, null, null],
+    // y=5 (先手側): C D L D C
+    [
+      { type: 'cat', player: 'player' },
+      { type: 'dog', player: 'player' },
+      { type: 'lion', player: 'player' },
+      { type: 'dog', player: 'player' },
+      { type: 'cat', player: 'player' },
+    ],
   ];
 
   return board;
