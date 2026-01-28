@@ -6,7 +6,7 @@ import {
   getValidDropPositions,
   getValidMovesForPiece,
 } from '@/utils/gameLogic';
-// import { getBestMove } from '@/utils/ai';
+import { getBestMove } from '@/utils/ai';
 
 import { isSamePosition } from '@/utils/pieceRules';
 
@@ -37,18 +37,12 @@ export function useGameLogic() {
     ) {
       setIsAIThinking(true);
       setTimeout(() => {
-        // Web WorkerでAI計算（public/aiWorker.js方式）
-        const worker = new Worker('/aiWorker.js', { type: 'module' });
-        worker.postMessage({ state: gameState, difficulty: 3 });
-        worker.onmessage = (e) => {
-          const bestMove = e.data;
-          worker.terminate();
-          if (bestMove) {
-            const newState = applyMove(gameState, bestMove);
-            setGameState(newState);
-          }
-          setIsAIThinking(false);
-        };
+        const bestMove = getBestMove(gameState, 3);
+        if (bestMove) {
+          const newState = applyMove(gameState, bestMove);
+          setGameState(newState);
+        }
+        setIsAIThinking(false);
       }, 500);
     }
   }, [gameState, isAIThinking, showCoin]);
