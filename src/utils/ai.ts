@@ -29,8 +29,25 @@ const POSITION_BONUS = [
  * @param player 評価するプレイヤー
  * @returns 評価値（プレイヤーにとって有利なほど高い）
  */
+const evalCache = new Map<string, number>();
+
+function serializeState(state: GameState, player: Player): string {
+  // 盤面・持ち駒・手番・勝者のみで十分
+  return JSON.stringify({
+    board: state.board,
+    capturedPieces: state.capturedPieces,
+    currentPlayer: state.currentPlayer,
+    winner: state.winner,
+    player,
+  });
+}
+
 function evaluatePosition(state: GameState, player: Player): number {
   const opponent: Player = player === 'player' ? 'ai' : 'player';
+
+  // キャッシュ利用
+  const key = serializeState(state, player);
+  if (evalCache.has(key)) return evalCache.get(key)!;
 
   // 勝敗が決まっている場合
   if (state.winner === player) return 999999;
@@ -70,6 +87,7 @@ function evaluatePosition(state: GameState, player: Player): number {
     score -= PIECE_VALUES[pieceType] * 0.5;
   }
 
+  evalCache.set(key, score);
   return score;
 }
 

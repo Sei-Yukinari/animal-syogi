@@ -6,7 +6,8 @@ import {
   getValidDropPositions,
   getValidMovesForPiece,
 } from '@/utils/gameLogic';
-import { getBestMove } from '@/utils/ai';
+// import { getBestMove } from '@/utils/ai';
+import { wrap } from 'comlink';
 import { isSamePosition } from '@/utils/pieceRules';
 
 export function useGameLogic() {
@@ -35,8 +36,12 @@ export function useGameLogic() {
       !showCoin
     ) {
       setIsAIThinking(true);
-      setTimeout(() => {
-        const bestMove = getBestMove(gameState, 3);
+      setTimeout(async () => {
+        // Web WorkerでAI計算
+        const worker = new Worker(new URL('../workers/aiWorker.ts', import.meta.url), { type: 'module' });
+        const aiApi = wrap<any>(worker);
+        const bestMove = await aiApi.getBestMove(gameState, 3);
+        worker.terminate();
         if (bestMove) {
           const newState = applyMove(gameState, bestMove);
           setGameState(newState);
