@@ -10,7 +10,9 @@ import { getBestMove } from '@/utils/ai';
 
 import { isSamePosition } from '@/utils/pieceRules';
 
-export function useGameLogic() {
+import { UseGameLogicApi } from '@/types/useGameLogicApi';
+
+export function useGameLogic(): UseGameLogicApi {
   const [gameState, setGameState] = useState<GameState>(() => createInitialGameState(false));
   const gameStateRef = useRef(gameState);
   const [isAIThinking, setIsAIThinking] = useState(false);
@@ -145,7 +147,7 @@ export function useGameLogic() {
   const getState = () => gameStateRef.current;
 
   // Expose gameState as a getter property to always reflect latest state when captured by tests
-  const api: any = {
+  const api: UseGameLogicApi = {
     getState,
     setGameState,
     isAIThinking,

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { getBestMove, minimax } from './ai';
-import { createInitialBoard, createInitialGameState, applyMove } from './gameLogic';
+import { createInitialBoard, applyMove } from './gameLogic';
 import { GameState } from '@/types/game';
 
 describe('getBestMove', () => {

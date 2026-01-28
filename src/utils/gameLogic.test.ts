@@ -1,18 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import {
   createInitialBoard,
-  createInitialGameState,
-  getValidMovesForPiece,
-  getValidDropPositions,
   shouldPromoteChick,
   applyMove,
-  checkWinner,
-  checkLionInEnemyTerritory,
-  generateAllMoves,
-  cloneBoard,
-  cloneGameState,
 } from './gameLogic';
-import type { Piece, Player, Position, Move } from '@/types/game';
+import type { Piece, Move } from '@/types/game';
 
 // 初期盤面のテスト
 

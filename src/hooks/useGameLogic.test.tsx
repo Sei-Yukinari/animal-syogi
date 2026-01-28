@@ -1,27 +1,27 @@
-import { render, act, screen } from '@testing-library/react';
+import { render, act } from '@testing-library/react';
 import { useGameLogic } from './useGameLogic';
-import { PieceType, Player } from '@/types/game';
 import React from 'react';
 
-function TestComponent({ onTest }: { onTest: any }) {
+import { UseGameLogicApi } from '@/types/useGameLogicApi';
+
+function TestComponent({ onTest }: { onTest: (logic: UseGameLogicApi) => void }) {
   const logic = useGameLogic();
   React.useEffect(() => {
     onTest(logic);
-    // eslint-disable-next-line
   }, []);
   return null;
 }
 
 describe('useGameLogic', () => {
   it('初期状態はコイントス待ち', () => {
-    let logic: any;
+    let logic: UseGameLogicApi;
     render(<TestComponent onTest={l => { logic = l; }} />);
     expect(logic.showCoin).toBe(true);
     expect(logic.gameState.currentPlayer).toBe('player');
   });
 
   it('コイントス後に先手が切り替わる', async () => {
-    let logic: any;
+    let logic: UseGameLogicApi;
     render(<TestComponent onTest={l => { logic = l; }} />);
     act(() => {
       logic.setPendingFirst('ai');
@@ -32,7 +32,7 @@ describe('useGameLogic', () => {
   });
 
   it('駒選択→移動で状態が更新される', () => {
-    let logic: any;
+    let logic: UseGameLogicApi;
     render(<TestComponent onTest={l => { logic = l; }} />);
     act(() => {
       logic.handleSquareClick({ row: 2, col: 1 });
@@ -47,7 +47,7 @@ describe('useGameLogic', () => {
   });
 
   it('持ち駒打ちで盤面が更新される', () => {
-    let logic: any;
+    let logic: UseGameLogicApi;
     render(<TestComponent onTest={l => { logic = l; }} />);
     act(() => {
       logic.gameState.capturedPieces.player.push('chick');
@@ -60,7 +60,7 @@ describe('useGameLogic', () => {
   });
 
   it('リセットで初期化される', () => {
-    let logic: any;
+    let logic: UseGameLogicApi;
     render(<TestComponent onTest={l => { logic = l; }} />);
     act(() => {
       logic.handleReset();
