@@ -60,8 +60,8 @@ const PIECE_DIRECTIONS: Record<PieceType['type'], DirectionGrid> = {
   // ニワトリ: 前、斜め前2方向、後ろの6方向
   chicken: [
     [true, true, true],
-    [false, false, false],
-    [true, true, true],
+    [true, false, true],
+    [false, true, false],
   ],
 };
 
