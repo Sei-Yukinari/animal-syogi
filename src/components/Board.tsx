@@ -25,9 +25,9 @@ export default function Board({
 
   return (
     <div className="w-full sm:inline-block bg-gradient-to-br from-amber-100 via-orange-50 to-yellow-100 p-4 sm:p-6 rounded-2xl shadow-2xl border-4 border-amber-200">
-      <div className="grid grid-rows-4 gap-1 sm:gap-1">
+      <div className="grid gap-1 sm:gap-1">
         {board.map((row, rowIndex) => (
-          <div key={rowIndex} className="grid grid-cols-3 gap-1">
+          <div key={rowIndex} className="grid gap-1" style={{ gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))` }}>
             {row.map((piece, colIndex) => {
               const position: Position = { row: rowIndex, col: colIndex };
               const selected = isSelected(position);
