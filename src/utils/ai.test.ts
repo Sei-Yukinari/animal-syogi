@@ -10,7 +10,9 @@ describe('getBestMove', () => {
       capturedPieces: { player: [], ai: [] },
       currentPlayer: 'ai',
       winner: null,
-      tryPending: false,
+      selectedPosition: null,
+      selectedCapturedPiece: null,
+      tryPending: null,
       validMoves: [],
     };
     const move = getBestMove(initialState, 1);
