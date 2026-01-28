@@ -39,7 +39,7 @@ export default function VictoryModal({ winner, onReset }: VictoryModalProps) {
       >
         <div
           className={`
-            bg-gradient-to-br from-white via-yellow-50 to-orange-50 rounded-3xl shadow-2xl p-10 max-w-lg mx-4
+            bg-gradient-to-br from-white via-yellow-50 to-orange-50 rounded-3xl shadow-2xl p-2 sm:p-10 max-w-[220px] sm:max-w-lg mx-1 sm:mx-4
             transform transition-all duration-700 border-4
             ${show ? 'translate-y-0' : 'translate-y-10'}
             ${isPlayerWin ? 'border-yellow-400' : 'border-blue-400'}

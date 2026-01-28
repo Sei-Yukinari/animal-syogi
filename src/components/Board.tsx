@@ -24,8 +24,10 @@ export default function Board({
   };
 
   return (
-    <div className="w-full sm:inline-block bg-gradient-to-br from-amber-100 via-orange-50 to-yellow-100 p-4 sm:p-6 rounded-2xl shadow-2xl border-4 border-amber-200">
-      <div className="grid grid-rows-4 gap-1 sm:gap-1">
+    <div className="w-full sm:inline-block bg-gradient-to-br from-amber-100 via-orange-50 to-yellow-100 p-1 sm:p-6 rounded-2xl shadow-2xl border-4 border-amber-200 max-w-[270px] sm:max-w-none mx-auto">
+      <div className="grid grid-rows-4 gap-0.5 sm:gap-1 w-full max-w-[210px] sm:max-w-[360px] mx-auto">
+        {/* iPhone SE向け: ボタンサイズを小さく */}
+
         {board.map((row, rowIndex) => (
           <div key={rowIndex} className="grid grid-cols-3 gap-1">
             {row.map((piece, colIndex) => {
@@ -38,7 +40,7 @@ export default function Board({
                   key={`${rowIndex}-${colIndex}`}
                   onClick={() => onSquareClick(position)}
                   className={`
-                    w-20 h-20 sm:w-36 sm:h-36
+                    w-12 h-12 sm:w-24 sm:h-24
                     flex items-center justify-center
                     rounded-xl
                     transition-all duration-200

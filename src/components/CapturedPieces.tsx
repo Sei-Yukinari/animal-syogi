@@ -44,15 +44,15 @@ export default function CapturedPieces({
   return (
     <div
       className={`
-        bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 rounded-2xl shadow-lg p-4 sm:p-5 border-3 border-amber-200
-        min-w-[200px] sm:min-w-[400px]
+        bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 rounded-2xl shadow-lg p-2 sm:p-5 border-3 border-amber-200
+        min-w-[80px] sm:min-w-[200px] max-w-[100px] sm:max-w-[400px]
         ${isAI ? 'rotate-180' : ''}
       `}
     >
       <div className="text-base font-bold mb-3 text-amber-900">
         {player === 'player' ? '🙂 先手の持ち駒' : '🤖 後手の持ち駒'}
       </div>
-      <div className="flex flex-wrap gap-3 min-h-[80px]">
+      <div className="flex flex-wrap gap-1 min-h-[24px]">
         {pieces.length === 0 ? (
           <div className="text-gray-400 text-base italic">なし</div>
         ) : (

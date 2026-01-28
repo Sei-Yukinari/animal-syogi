@@ -23,7 +23,9 @@ export default function Game() {
   } = useGameLogic();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-50 via-orange-50 to-pink-50 p-4 sm:p-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-50 via-orange-50 to-pink-50 p-2 sm:p-8">
+  <div className="w-full max-w-[320px] sm:max-w-3xl flex flex-col items-center gap-4 sm:gap-8 mx-auto">
+
       {showCoin && (
         <CoinFlip onResult={(result) => {
           setPendingFirst(result);
@@ -140,5 +142,6 @@ export default function Game() {
         )}
       </div>
     </div>
+  </div>
   );
 }
