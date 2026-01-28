@@ -9,21 +9,30 @@ interface CapturedPiecesProps {
 }
 
 // 駒の絵文字マッピング
-const PIECE_EMOJI: Record<PieceType, string> = {
+const PIECE_EMOJI: Partial<Record<PieceType, string>> = {
   lion: '🦁',
   giraffe: '🦒',
   elephant: '🐘',
   chick: '🐤',
   chicken: '🐔',
+  dog: '🐶',
+  cat: '🐱',
+  hen: '🐓',
+  cat_p: '😺',
 };
 
+
 // 駒の日本語名
-const PIECE_NAME: Record<PieceType, string> = {
+const PIECE_NAME: Partial<Record<PieceType, string>> = {
   lion: 'ライオン',
   giraffe: 'キリン',
   elephant: 'ゾウ',
   chick: 'ヒヨコ',
   chicken: 'ニワトリ',
+  dog: 'いぬ',
+  cat: 'ねこ',
+  hen: 'にわとり',
+  cat_p: 'ねこ（成）',
 };
 
 export default function CapturedPieces({

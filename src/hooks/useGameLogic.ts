@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { GameState, PieceType, Position, Player } from '@/types/game';
+import { GameState, PieceType, Position, Player, Move } from '@/types/game';
 import {
   applyMove,
   createInitialGameState,
@@ -14,6 +14,13 @@ export function useGameLogic(mode: 'standard' | 'goro' = 'standard') {
   const [isAIThinking, setIsAIThinking] = useState(false);
   const [showCoin, setShowCoin] = useState(false);
   const [pendingFirst, setPendingFirst] = useState<Player | null>(null);
+
+  // 成りUI
+  const [promotionPending, setPromotionPending] = useState<{
+    piece: { type: PieceType; player: Player } | null;
+    move: Move | null;
+    resolve?: (promote: boolean) => void;
+  } | null>(null);
 
   // コイントス結果反映
   useEffect(() => {
@@ -39,13 +46,13 @@ export function useGameLogic(mode: 'standard' | 'goro' = 'standard') {
       setTimeout(() => {
         const bestMove = getBestMove(gameState, 3);
         if (bestMove) {
-          const newState = applyMove(gameState, bestMove);
+          const newState = applyMove(gameState, bestMove, mode);
           setGameState(newState);
         }
         setIsAIThinking(false);
       }, 500);
     }
-  }, [gameState, isAIThinking, showCoin]);
+  }, [gameState, isAIThinking, showCoin, mode]);
 
   // マスがクリックされたとき
   const handleSquareClick = (position: Position) => {
@@ -61,7 +68,8 @@ export function useGameLogic(mode: 'standard' | 'goro' = 'standard') {
             player: gameState.selectedCapturedPiece.player,
           },
         };
-        const newState = applyMove(gameState, move);
+        // 駒打ちでは即適用（将来的に二歩判定などをここで行う）
+        const newState = applyMove(gameState, move, mode);
         setGameState(newState);
       } else {
         setGameState({
@@ -75,14 +83,54 @@ export function useGameLogic(mode: 'standard' | 'goro' = 'standard') {
     if (gameState.selectedPosition) {
       const isValidMove = gameState.validMoves.some((move) => isSamePosition(move, position));
       if (isValidMove) {
-        const piece = gameState.board[gameState.selectedPosition.row][gameState.selectedPosition.col];
-        if (piece) {
+        const selectedPiece = gameState.board[gameState.selectedPosition.row][gameState.selectedPosition.col];
+        if (selectedPiece) {
           const move = {
             from: gameState.selectedPosition,
             to: position,
-            piece,
+            piece: selectedPiece,
           };
-          const newState = applyMove(gameState, move);
+          // 移動後の成りが任意であれば UI で選択する必要があるが、まずは自動成りのみ適用
+          // 成りが任意の場合は promotionPending を設定して UI に任せる
+          const pieceForCheck = selectedPiece; 
+          if (pieceForCheck && (pieceForCheck.type === 'chick' || pieceForCheck.type === 'cat')) {
+            // 同期判定を行う
+            const willAllow = (() => {
+              const p = pieceForCheck;
+              if (p.type === 'chick') {
+                if (mode === 'goro') {
+                  if (p.player === 'player') return position.row === 0 || position.row === 1;
+                  return position.row === gameState.board.length - 1 || position.row === gameState.board.length - 2;
+                }
+                if (p.player === 'player') return position.row === 0;
+                return position.row === gameState.board.length - 1;
+              }
+              if (p.type === 'cat') {
+                if (mode === 'goro') {
+                  if (p.player === 'player') return position.row === 0 || position.row === 1;
+                  return position.row === gameState.board.length - 1 || position.row === gameState.board.length - 2;
+                }
+                if (p.player === 'player') return position.row === 0;
+                return position.row === gameState.board.length - 1;
+              }
+              return false;
+            })();
+
+            if (willAllow) {
+              // UI による選択で成否を決定するため、hook に resolver を渡す
+              setPromotionPending({
+                piece: pieceForCheck,
+                move,
+                resolve: (promote: boolean) => {
+                  const newState = applyMove(gameState, move, mode, promote);
+                  setGameState(newState);
+                },
+              });
+              return; // 処理はモーダルの解決で続行される
+            }
+          }
+
+          const newState = applyMove(gameState, move, mode);
           setGameState(newState);
         }
       } else {
@@ -119,7 +167,7 @@ export function useGameLogic(mode: 'standard' | 'goro' = 'standard') {
   // 持ち駒がクリックされたとき
   const handleCapturedPieceClick = (pieceType: PieceType) => {
     if (gameState.currentPlayer !== 'player' || gameState.winner) return;
-    const validMoves = getValidDropPositions(gameState.board);
+    const validMoves = getValidDropPositions(gameState.board, pieceType, 'player');
     setGameState({
       ...gameState,
       selectedPosition: null,
@@ -145,5 +193,7 @@ export function useGameLogic(mode: 'standard' | 'goro' = 'standard') {
     handleSquareClick,
     handleCapturedPieceClick,
     handleReset,
+    promotionPending,
+    setPromotionPending,
   };
 }

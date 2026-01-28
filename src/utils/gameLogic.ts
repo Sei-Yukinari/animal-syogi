@@ -4,6 +4,7 @@ import {
   GameState,
   Move,
   Piece,
+  PieceType,
   Player,
   Position,
 } from '@/types/game';
@@ -133,12 +134,27 @@ export function getValidMovesForPiece(
  * @param board 盤面
  * @returns 駒を打てる位置の配列
  */
-export function getValidDropPositions(board: Board): Position[] {
+export function getValidDropPositions(board: Board, pieceType?: PieceType, player?: Player): Position[] {
   const validPositions: Position[] = [];
+  const cols = board[0] ? board[0].length : 0;
+
+  // 二歩: 駒がヒヨコ(chick)の場合、同一列に既に自分のヒヨコがある列には打てない
+  const excludedCols = new Set<number>();
+  if (pieceType === 'chick' && player) {
+    for (let r = 0; r < board.length; r++) {
+      for (let c = 0; c < cols; c++) {
+        const p = board[r][c];
+        if (p && p.player === player && p.type === 'chick') {
+          excludedCols.add(c);
+        }
+      }
+    }
+  }
 
   for (let row = 0; row < board.length; row++) {
-    for (let col = 0; col < (board[0] ? board[0].length : 0); col++) {
+    for (let col = 0; col < cols; col++) {
       if (board[row][col] === null) {
+        if (excludedCols.has(col)) continue;
         validPositions.push({ row, col });
       }
     }
@@ -153,12 +169,49 @@ export function getValidDropPositions(board: Board): Position[] {
  * @param position 位置
  * @returns 成るべきならtrue
  */
-export function shouldPromoteChick(piece: Piece, position: Position): boolean {
+export function shouldPromoteChick(piece: Piece, position: Position, board: Board, mode: 'standard' | 'goro' = 'standard'): boolean {
   if (piece.type !== 'chick') return false;
 
-  // 先手は0段目（後手陣地）、後手は3段目（先手陣地）で成る
-  if (piece.player === 'player' && position.row === 0) return true;
-  if (piece.player === 'ai' && position.row === 3) return true;
+  if (mode === 'standard') {
+    // 先手は0段目（後手陣地）、後手は3段目（先手陣地）で成る
+    if (piece.player === 'player' && position.row === 0) return true;
+    if (piece.player === 'ai' && position.row === 3) return true;
+    return false;
+  }
+
+  // goro: 成りゾーンは相手陣2段目以内
+  if (piece.player === 'player') {
+    // 先手は y=0,1
+    return position.row === 0 || position.row === 1;
+  } else {
+    // 後手は y=4,5
+    return position.row === board.length - 1 || position.row === board.length - 2;
+  }
+}
+
+export function shouldAllowPromotion(
+  piece: Piece,
+  position: Position,
+  board: Board,
+  mode: 'standard' | 'goro' = 'standard'
+): boolean {
+  if (piece.type === 'chick') return shouldPromoteChick(piece, position, board, mode);
+
+  if (piece.type === 'cat') {
+    if (mode === 'standard') {
+      // 保守的に標準盤でも王手等と同様の最奥で成る扱い
+      if (piece.player === 'player' && position.row === 0) return true;
+      if (piece.player === 'ai' && position.row === board.length - 1) return true;
+      return false;
+    }
+
+    // goro: 先手 y=0,1 / 後手 y=board.length-1, board.length-2
+    if (piece.player === 'player') {
+      return position.row === 0 || position.row === 1;
+    } else {
+      return position.row === board.length - 1 || position.row === board.length - 2;
+    }
+  }
 
   return false;
 }
@@ -169,7 +222,7 @@ export function shouldPromoteChick(piece: Piece, position: Position): boolean {
  * @param move 移動
  * @returns 新しいゲーム状態
  */
-export function applyMove(state: GameState, move: Move): GameState {
+export function applyMove(state: GameState, move: Move, mode: 'standard' | 'goro' = 'standard', promote?: boolean): GameState {
   const newBoard = state.board.map((row) => [...row]);
   const newCapturedPieces: CapturedPieces = {
     player: [...state.capturedPieces.player],
@@ -202,12 +255,23 @@ export function applyMove(state: GameState, move: Move): GameState {
     newBoard[move.to.row][move.to.col] = move.piece;
     newBoard[move.from.row][move.from.col] = null;
 
-    // ヒヨコの成り判定
-    if (shouldPromoteChick(move.piece, move.to)) {
-      newBoard[move.to.row][move.to.col] = {
-        ...move.piece,
-        type: 'chicken',
-      };
+    // 成り判定（ヒヨコ / ねこ）
+    if (move.piece.type === 'chick' && shouldPromoteChick(move.piece, move.to, newBoard, mode)) {
+      if (promote === undefined || promote === true) {
+        newBoard[move.to.row][move.to.col] = {
+          ...move.piece,
+          type: 'chicken',
+        };
+      }
+    }
+
+    if (move.piece.type === 'cat' && shouldAllowPromotion(move.piece, move.to, newBoard, mode)) {
+      if (promote === undefined || promote === true) {
+        newBoard[move.to.row][move.to.col] = {
+          ...move.piece,
+          type: 'cat_p',
+        };
+      }
     }
   }
 
@@ -325,9 +389,8 @@ export function generateAllMoves(state: GameState, player: Player): Move[] {
   // 持ち駒を打つ
   const capturedPieces = state.capturedPieces[player];
   if (capturedPieces.length > 0) {
-    const dropPositions = getValidDropPositions(state.board);
-
     for (const pieceType of capturedPieces) {
+      const dropPositions = getValidDropPositions(state.board, pieceType, player);
       for (const to of dropPositions) {
         moves.push({
           from: null,

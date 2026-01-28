@@ -8,9 +8,10 @@ import Board from './Board';
 import CapturedPieces from './CapturedPieces';
 import Confetti from './Confetti';
 import VictoryModal from './VictoryModal';
+import PromotionModal from './PromotionModal';
 
 export default function Game() {
-  const [mode, setMode] = useState<'standard' | 'goro' | null>(null);
+  const [mode, setMode] = useState<'standard' | 'goro' | undefined>(undefined);
 
   const {
     gameState,
@@ -23,8 +24,24 @@ export default function Game() {
     handleSquareClick,
     handleCapturedPieceClick,
     handleReset,
+    promotionPending,
+    setPromotionPending,
   } = useGameLogic(mode);
 
+  const [promotionModal, setPromotionModal] = useState<{ pieceType: string; onConfirm: (promote: boolean) => void } | null>(null);
+
+  // handle promotion modal result
+  const handlePromotionConfirm = (promote: boolean) => {
+    if (!promotionModal) return;
+    promotionModal.onConfirm(promote);
+    setPromotionModal(null);
+
+    // resolve hook's pending promotion if exists
+    if (promotionPending && promotionPending.resolve) {
+      promotionPending.resolve(promote);
+      setPromotionPending(null);
+    }
+  };
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-50 via-orange-50 to-pink-50 p-4 sm:p-8">
       {showCoin && (
@@ -41,7 +58,7 @@ export default function Game() {
         <VictoryModal winner={gameState.winner} onReset={handleReset} />
       )}
 
-      <div className="flex flex-col items-center gap-8">
+      <div className="flex flex-col items-center gap-8">{ /* Promotion modal rendering placed here */ }
         <h1 className="text-3xl sm:text-5xl font-bold text-amber-900 drop-shadow-md">
           🦁 どうぶつしょうぎ 🐘
         </h1>
@@ -103,6 +120,16 @@ export default function Game() {
             onSquareClick={handleSquareClick}
           />
         </div>
+
+        {/* 成りモーダル */}
+        {promotionModal && (
+          <PromotionModal pieceType={promotionModal.pieceType} onConfirm={handlePromotionConfirm} />
+        )}
+
+        {/* hook の promotionPending と連携 */}
+        {/** Since useGameLogic returns promotionPending and setPromotionPending,
+            we render modal when non-null and resolve using the stored resolver. */}
+        { /* Accessing via hook return is done below in the component body */ }
 
         {/* 先手（プレイヤー）の持ち駒 */}
         <div
