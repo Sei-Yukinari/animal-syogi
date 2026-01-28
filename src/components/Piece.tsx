@@ -12,6 +12,10 @@ const PIECE_EMOJI: Record<PieceType['type'], string> = {
   elephant: '🐘',
   chick: '🐤',
   chicken: '🐔',
+  dog: '🐶',
+  cat: '🐱',
+  hen: '🐓',
+  cat_p: '😺',
 };
 
 // const PIECE_IMAGE: Partial<Record<PieceType['type'], string>> = {
@@ -27,6 +31,10 @@ const PIECE_NAME: Record<PieceType['type'], string> = {
   elephant: 'ゾウ',
   chick: 'ヒヨコ',
   chicken: 'ニワトリ',
+  dog: 'いぬ',
+  cat: 'ねこ',
+  hen: 'にわとり',
+  cat_p: 'ねこ（成）',
 };
 
 // 各駒の動ける方向（3×3グリッド、中央が駒の位置）
@@ -58,11 +66,32 @@ const PIECE_DIRECTIONS: Record<PieceType['type'], DirectionGrid> = {
     [false, false, false],
     [false, false, false],
   ],
-  // ニワトリ: 前、斜め前2方向、後ろの6方向
+  // ニワトリ / 成ねこ: 金将と同じ動き
   chicken: [
     [true, true, true],
     [true, false, true],
     [false, true, false],
+  ],
+  cat_p: [
+    [true, true, true],
+    [true, false, true],
+    [false, true, false],
+  ],
+  hen: [
+    [true, true, true],
+    [true, false, true],
+    [false, true, false],
+  ],
+  // ごろごろ用
+  dog: [
+    [true, true, true],
+    [true, false, true],
+    [false, true, false],
+  ],
+  cat: [
+    [true, true, true],
+    [true, false, true],
+    [true, false, true],
   ],
 };
 
@@ -72,6 +101,10 @@ const PIECE_BG: Record<PieceType['type'], string> = {
   giraffe: 'bg-violet-200', // キリン: 紫
   elephant: 'bg-purple-100',// ゾウ: 薄い紫
   chicken: 'bg-yellow-100', // ニワトリ: 薄い黄色（未指定の補完）
+  dog: 'bg-blue-100',
+  cat: 'bg-gray-100',
+  hen: 'bg-yellow-100',
+  cat_p: 'bg-yellow-200',
 };
 
 export default function Piece({ piece, isSelected = false }: PieceProps) {
