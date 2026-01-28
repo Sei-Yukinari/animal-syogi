@@ -83,7 +83,7 @@ function evaluatePosition(state: GameState, player: Player): number {
  * @param aiPlayer AIのプレイヤー
  * @returns 評価値
  */
-function minimax(
+export function minimax(
   state: GameState,
   depth: number,
   alpha: number,
