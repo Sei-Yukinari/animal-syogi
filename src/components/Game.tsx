@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 // import { PieceType, Position, Player } from '@/types/game';
 import CoinFlip from './CoinFlip';
 import { useGameLogic } from '@/hooks/useGameLogic';
@@ -9,6 +10,8 @@ import Confetti from './Confetti';
 import VictoryModal from './VictoryModal';
 
 export default function Game() {
+  const [mode, setMode] = useState<'standard' | 'goro' | null>(null);
+
   const {
     gameState,
 
@@ -42,6 +45,29 @@ export default function Game() {
         <h1 className="text-3xl sm:text-5xl font-bold text-amber-900 drop-shadow-md">
           🦁 どうぶつしょうぎ 🐘
         </h1>
+
+        {!mode && (
+          <div className="flex gap-4">
+            <button
+              onClick={() => {
+                setMode('standard');
+                setShowCoin(true);
+              }}
+              className="px-4 py-2 bg-amber-400 text-white rounded-lg font-bold"
+            >
+              どうぶつしょうぎ
+            </button>
+            <button
+              onClick={() => {
+                setMode('goro');
+                setShowCoin(true);
+              }}
+              className="px-4 py-2 bg-amber-200 text-amber-900 rounded-lg font-bold"
+            >
+              ごろごろどうぶつしょうぎ
+            </button>
+          </div>
+        )}
 
         {/* 後手（AI）の持ち駒 */}
         <div

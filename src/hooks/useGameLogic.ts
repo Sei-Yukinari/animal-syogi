@@ -12,12 +12,13 @@ import { isSamePosition } from '@/utils/pieceRules';
 export function useGameLogic() {
   const [gameState, setGameState] = useState<GameState>(() => createInitialGameState(false));
   const [isAIThinking, setIsAIThinking] = useState(false);
-  const [showCoin, setShowCoin] = useState(true);
+  const [showCoin, setShowCoin] = useState(false);
   const [pendingFirst, setPendingFirst] = useState<Player | null>(null);
 
   // コイントス結果反映
   useEffect(() => {
     if (pendingFirst) {
+      // create initial state without randomness for now
       setGameState(createInitialGameState(false));
       setTimeout(() => {
         setGameState({ ...createInitialGameState(false), currentPlayer: pendingFirst });
