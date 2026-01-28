@@ -7,7 +7,7 @@ import {
   getValidMovesForPiece,
 } from '@/utils/gameLogic';
 // import { getBestMove } from '@/utils/ai';
-import { wrap } from 'comlink';
+
 import { isSamePosition } from '@/utils/pieceRules';
 
 export function useGameLogic() {
