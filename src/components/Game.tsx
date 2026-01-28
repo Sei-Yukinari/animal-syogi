@@ -1,166 +1,26 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { GameState, PieceType, Position, Player } from '@/types/game';
+import { PieceType, Position, Player } from '@/types/game';
 import CoinFlip from './CoinFlip';
-import {
-  applyMove,
-  createInitialGameState,
-  getValidDropPositions,
-  getValidMovesForPiece,
-} from '@/utils/gameLogic';
-import { getBestMove } from '@/utils/ai';
-import { isSamePosition } from '@/utils/pieceRules';
+import { useGameLogic } from '@/hooks/useGameLogic';
 import Board from './Board';
 import CapturedPieces from './CapturedPieces';
 import Confetti from './Confetti';
 import VictoryModal from './VictoryModal';
 
 export default function Game() {
-  const [gameState, setGameState] = useState<GameState>(() => createInitialGameState(false));
-  const [isAIThinking, setIsAIThinking] = useState(false);
-  const [showCoin, setShowCoin] = useState(true);
-  const [pendingFirst, setPendingFirst] = useState<Player | null>(null);
-
-  // コイントス結果反映
-  useEffect(() => {
-    if (pendingFirst) {
-      setGameState(createInitialGameState(false));
-      setTimeout(() => {
-        setGameState({ ...createInitialGameState(false), currentPlayer: pendingFirst });
-        setPendingFirst(null);
-      }, 500);
-    }
-  }, [pendingFirst]);
-
-  // AI の手番
-  useEffect(() => {
-    if (
-      gameState.currentPlayer === 'ai' &&
-      !gameState.winner &&
-      !isAIThinking &&
-      !showCoin
-    ) {
-      setIsAIThinking(true);
-      setTimeout(() => {
-        const bestMove = getBestMove(gameState, 3);
-        if (bestMove) {
-          const newState = applyMove(gameState, bestMove);
-          setGameState(newState);
-        }
-        setIsAIThinking(false);
-      }, 500);
-    }
-  }, [gameState, isAIThinking, showCoin]);
-
-  // マスがクリックされたとき
-  const handleSquareClick = (position: Position) => {
-    // ゲーム終了またはAIの手番なら無視
-    if (gameState.winner || gameState.currentPlayer === 'ai') return;
-
-    // 持ち駒を選択している場合
-    if (gameState.selectedCapturedPiece) {
-      // 有効な配置位置か確認
-      const isValidDrop = gameState.validMoves.some((move) =>
-        isSamePosition(move, position)
-      );
-
-      if (isValidDrop) {
-        const move = {
-          from: null,
-          to: position,
-          piece: {
-            type: gameState.selectedCapturedPiece.pieceType,
-            player: gameState.selectedCapturedPiece.player,
-          },
-        };
-
-        const newState = applyMove(gameState, move);
-        setGameState(newState);
-      } else {
-        // 無効な位置をクリック → 選択解除
-        setGameState({
-          ...gameState,
-          selectedCapturedPiece: null,
-          validMoves: [],
-        });
-      }
-      return;
-    }
-
-    // 駒を選択している場合
-    if (gameState.selectedPosition) {
-      // 有効な移動先か確認
-      const isValidMove = gameState.validMoves.some((move) =>
-        isSamePosition(move, position)
-      );
-
-      if (isValidMove) {
-        const piece = gameState.board[gameState.selectedPosition.row][
-          gameState.selectedPosition.col
-        ];
-        if (piece) {
-          const move = {
-            from: gameState.selectedPosition,
-            to: position,
-            piece,
-          };
-
-          const newState = applyMove(gameState, move);
-          setGameState(newState);
-        }
-      } else {
-        // 別の駒を選択
-        const clickedPiece = gameState.board[position.row][position.col];
-        if (clickedPiece && clickedPiece.player === 'player') {
-          const validMoves = getValidMovesForPiece(gameState.board, position);
-          setGameState({
-            ...gameState,
-            selectedPosition: position,
-            validMoves,
-          });
-        } else {
-          // 選択解除
-          setGameState({
-            ...gameState,
-            selectedPosition: null,
-            validMoves: [],
-          });
-        }
-      }
-    } else {
-      // 新しく駒を選択
-      const clickedPiece = gameState.board[position.row][position.col];
-      if (clickedPiece && clickedPiece.player === 'player') {
-        const validMoves = getValidMovesForPiece(gameState.board, position);
-        setGameState({
-          ...gameState,
-          selectedPosition: position,
-          selectedCapturedPiece: null,
-          validMoves,
-        });
-      }
-    }
-  };
-
-  // 持ち駒がクリックされたとき
-  const handleCapturedPieceClick = (pieceType: PieceType) => {
-    if (gameState.currentPlayer !== 'player' || gameState.winner) return;
-
-    const validMoves = getValidDropPositions(gameState.board);
-    setGameState({
-      ...gameState,
-      selectedPosition: null,
-      selectedCapturedPiece: { player: 'player', pieceType },
-      validMoves,
-    });
-  };
-
-  // ゲームをリセット
-  const handleReset = () => {
-    setShowCoin(true);
-    setIsAIThinking(false);
-  };
+  const {
+    gameState,
+    setGameState,
+    isAIThinking,
+    showCoin,
+    setShowCoin,
+    pendingFirst,
+    setPendingFirst,
+    handleSquareClick,
+    handleCapturedPieceClick,
+    handleReset,
+  } = useGameLogic();
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-yellow-50 via-orange-50 to-pink-50 p-4 sm:p-8">
