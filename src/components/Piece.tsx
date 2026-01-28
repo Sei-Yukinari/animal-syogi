@@ -90,7 +90,7 @@ const PIECE_DIRECTIONS: Record<PieceType['type'], DirectionGrid> = {
   ],
   cat: [
     [true, true, true],
-    [true, false, true],
+    [false, false, false],
     [true, false, true],
   ],
 };

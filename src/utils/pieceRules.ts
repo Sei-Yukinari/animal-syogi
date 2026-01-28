@@ -41,7 +41,6 @@ const PIECE_DIRECTIONS: Record<PieceType, Direction[]> = {
   cat: [
     [-1, 0],
     [-1, -1], [-1, 1],
-    [0, -1], [0, 1],
     [1, -1], [1, 1],
   ],
   // 成ねこ / にわとり（CAT_P / HEN）: 金将と同じ
