@@ -39,7 +39,7 @@ export function useGameLogic() {
       setTimeout(async () => {
         // Web WorkerでAI計算
         const worker = new Worker(new URL('../workers/aiWorker.ts', import.meta.url), { type: 'module' });
-        const aiApi = wrap<any>(worker);
+        const aiApi = wrap<{ getBestMove(state: GameState, difficulty: number): Promise<import('@/types/game').Move | null> }>(worker);
         const bestMove = await aiApi.getBestMove(gameState, 3);
         worker.terminate();
         if (bestMove) {
