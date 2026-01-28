@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   createInitialBoard,
+  createInitialGameState,
   shouldPromoteChick,
   applyMove,
 } from './gameLogic';
